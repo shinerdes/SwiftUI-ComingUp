@@ -83,7 +83,7 @@ struct ContentView: View {
         
         
         var sortDateArray: [Date] = []
-        var comingUpTitle = ""
+        var comingUpTitle = "일정이 없습니다"
         
         if dataProvider.allTodo.count == 0 {
             comingUpTitle = "일정이 없습니다"
@@ -93,24 +93,32 @@ struct ContentView: View {
                 if let a = i.date.toDate(){
                     sortDateArray.append(a)
                 }
-                
-                
             }
             
-        
-            
             var before = sortDateArray.sorted(by: { $0.compare($1) == .orderedAscending })
-            let firstDate = dateFormatter.string(from: before[0])
+            var compare: [String] = []
+            var firstDate = ""
+ 
             
+            for i in 0..<before.count {
+                compare.append(Date().dateCompare(fromDate: before[i]))
 
+            }
+            
+            for i in 0..<compare.count {
+                if compare[i] != "Past" {
+                   firstDate = dateFormatter.string(from: before[i])
+                   break
+                }
+            }
             
             for i in dataProvider.allTodo {
                 if firstDate == i.date {
                     comingUpTitle = i.title
                 }
-                
+
             }
-            
+
         }
         
      
@@ -128,3 +136,32 @@ struct ContentView_Previews: PreviewProvider {
 }
 
 
+
+extension Date {
+
+    /**
+     # dateCompare
+     - Parameters:
+        - fromDate: 비교 대상 Date
+     - Note: 두 날짜간 비교해서 과거(Future)/현재(Same)/미래(Past) 반환
+    */
+    public func dateCompare(fromDate: Date) -> String {
+        var strDateMessage:String = ""
+        let result:ComparisonResult = self.compare(fromDate)
+        switch result {
+        case .orderedAscending:
+            strDateMessage = "Future"
+            break
+        case .orderedDescending:
+            strDateMessage = "Past"
+            break
+        case .orderedSame:
+            strDateMessage = "Same"
+            break
+        default:
+            strDateMessage = "Error"
+            break
+        }
+        return strDateMessage
+    }
+}
